@@ -1,0 +1,48 @@
+$ kubectl get pod -o wide
+NAME                     READY   STATUS    RESTARTS   AGE   IP               NODE                                      NOMINATED NODE   READINESS GATES
+pg-db-6b7db8f7f5-z9vvf   1/1     Running   0          14m   10.100.154.192   kubernetes-cluster-9166-default-group-2   <none>  
+
+$ kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/#
+root@test:/# psql -h 10.100.154.192 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=#
+testdatabase=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+testdatabase=# \q
+root@test:/# exit
+$ kubectl delete po pg-db-6b7db8f7f5-z9vvf
+pod "pg-db-6b7db8f7f5-z9vvf" deleted
+$ kubectl get po
+NAME                     READY   STATUS    RESTARTS   AGE
+pg-db-6b7db8f7f5-zcl8f   1/1     Running   0          94s
+
+$ kubectl get pod -o wide
+NAME                     READY   STATUS    RESTARTS   AGE     IP              NODE                                      NOMINATED NODE   READINESS GATES
+pg-db-6b7db8f7f5-zcl8f   1/1     Running   0          3m25s   10.100.160.65   kubernetes-cluster-9166-default-group-0   <none>   
+
+$ kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/#
+root@test:/# psql -h 10.100.160.65 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+testdatabase=# \q
+root@test:/# exit
